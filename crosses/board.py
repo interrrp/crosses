@@ -61,56 +61,36 @@ class Board:
         yield from enumerate(self._board)
 
     @property
-    def outcome(self) -> Outcome | None:  # noqa: PLR0912, C901
-        # I'm sorry
+    def outcome(self) -> Outcome | None:
+        directions = [
+            (0, 1),  # Horizontal
+            (1, 0),  # Vertical
+            (1, 1),  # Diagonal down-right
+            (1, -1),  # Diagonal down-left
+        ]
 
         for row in range(self._height):
-            for col in range(self._width - self._cross_length + 1):
-                first_mark = self[row, col]
-                if first_mark != Mark.NONE:
-                    winning = True
-                    for offset in range(1, self._cross_length):
-                        if self[row, col + offset] != first_mark:
-                            winning = False
-                            break
-                    if winning:
-                        return Outcome.from_mark(first_mark)
+            for col in range(self._width):
+                mark = self[row, col]
+                if mark == Mark.NONE:
+                    continue
 
-        for col in range(self._width):
-            for row in range(self._height - self._cross_length + 1):
-                first_mark = self[row, col]
-                if first_mark != Mark.NONE:
-                    winning = True
-                    for offset in range(1, self._cross_length):
-                        if self[row + offset, col] != first_mark:
-                            winning = False
-                            break
-                    if winning:
-                        return Outcome.from_mark(first_mark)
+                for dr, dc in directions:
+                    if (
+                        row + (self._cross_length - 1) * dr >= self._height
+                        or col + (self._cross_length - 1) * dc >= self._width
+                        or col + (self._cross_length - 1) * dc < 0
+                    ):
+                        continue
 
-        for row in range(self._height - self._cross_length + 1):
-            for col in range(self._width - self._cross_length + 1):
-                first_mark = self[row, col]
-                if first_mark != Mark.NONE:
-                    winning = True
-                    for offset in range(1, self._cross_length):
-                        if self[row + offset, col + offset] != first_mark:
-                            winning = False
+                    win = True
+                    for i in range(1, self._cross_length):
+                        if self[row + i * dr, col + i * dc] != mark:
+                            win = False
                             break
-                    if winning:
-                        return Outcome.from_mark(first_mark)
 
-        for row in range(self._height - self._cross_length + 1):
-            for col in range(self._cross_length - 1, self._width):
-                first_mark = self[row, col]
-                if first_mark != Mark.NONE:
-                    winning = True
-                    for offset in range(1, self._cross_length):
-                        if self[row + offset, col - offset] != first_mark:
-                            winning = False
-                            break
-                    if winning:
-                        return Outcome.from_mark(first_mark)
+                    if win:
+                        return Outcome.from_mark(mark)
 
         if not any(self.legal_indices):
             return Outcome.TIE
