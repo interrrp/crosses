@@ -5,7 +5,7 @@ from crosses.board import Board, InvalidMarkError, InvalidUnmarkError, Mark, Out
 
 def test_board_is_initialized_empty() -> None:
     board = Board(width=5, height=5)
-    for index in range(25):
+    for index in range(5 * 5):
         assert board[index] == Mark.NONE
 
 
@@ -69,3 +69,8 @@ def test_board_determines_tie() -> None:
         "X O X",
     )
     assert board.outcome == Outcome.TIE
+
+
+def test_board_legal_indices() -> None:
+    board = Board(width=5, height=4)
+    assert len(board.legal_indices) == 5 * 4

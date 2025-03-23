@@ -18,7 +18,7 @@ def engine_mark(board: Board) -> None:
 
     for index in board.legal_indices:
         board.mark(index)
-        score = -_search(board)
+        score = -1 if _opponent_can_win_next(board) else -_search(board)
         board.unmark(index)
 
         if score > best_score:
@@ -28,7 +28,7 @@ def engine_mark(board: Board) -> None:
     board.mark(best_index)
 
 
-def _search(board: Board, alpha: float = -INF, beta: float = INF) -> float:
+def _search(board: Board, depth: int = 3, alpha: float = -INF, beta: float = INF) -> float:
     if board.outcome:
         if board.outcome == Outcome.TIE:
             return 0
@@ -39,12 +39,25 @@ def _search(board: Board, alpha: float = -INF, beta: float = INF) -> float:
         if endgame in BAD_ENDGAMES:
             return -1
 
+    if depth == 0:
+        return 0
+
     for index in board.legal_indices:
         board.mark(index)
-        alpha = max(alpha, -_search(board, -beta, -alpha))
+        alpha = max(alpha, -_search(board, depth - 1, -beta, -alpha))
         board.unmark(index)
 
         if alpha > beta:
             break
 
     return alpha
+
+
+def _opponent_can_win_next(board: Board) -> bool:
+    for index in board.legal_indices:
+        board.mark(index)
+        if board.outcome and board.outcome != Outcome.TIE:
+            board.unmark(index)
+            return True
+        board.unmark(index)
+    return False

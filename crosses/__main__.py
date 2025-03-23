@@ -2,6 +2,7 @@
 
 
 from crosses.board import Board, InvalidMarkError, Mark, Outcome
+from crosses.engine import engine_mark
 
 RED = "\033[91m"
 BLUE = "\033[94m"
@@ -11,30 +12,31 @@ RESET = "\033[0m"
 
 
 def main() -> None:
-    board = Board()
+    board = Board(width=4, height=4)
     error = ""
+
+    engine_mark(board)
 
     while True:
         clear_screen()
         print_board(board)
 
-        if board.outcome == Outcome.X_WON:
-            print(f"{RED}X won!{RESET}")
-            break
-        if board.outcome == Outcome.O_WON:
-            print(f"{BLUE}O won!{RESET}")
-            break
-        if board.outcome == Outcome.TIE:
-            print(f"{YELLOW}Tie!{RESET}")
-            break
-
         print()
         if error:
             print(f"{RED}{error}{RESET}")
 
-        index = int(input())
         try:
+            index = int(input())
             board.mark(index - 1)
+            if board.outcome:
+                handle_outcome(board)
+                break
+
+            engine_mark(board)
+            if board.outcome:
+                handle_outcome(board)
+                break
+
             error = ""
         except InvalidMarkError:
             error = "Invalid mark!"
@@ -42,6 +44,17 @@ def main() -> None:
 
 def clear_screen() -> None:
     print("\033c", end="")
+
+
+def handle_outcome(board: Board) -> None:
+    clear_screen()
+    print_board(board)
+    if board.outcome == Outcome.X_WON:
+        print(f"{RED}X won!{RESET}")
+    elif board.outcome == Outcome.O_WON:
+        print(f"{BLUE}O won!{RESET}")
+    elif board.outcome == Outcome.TIE:
+        print(f"{YELLOW}Tie!{RESET}")
 
 
 def print_board(board: Board) -> None:
