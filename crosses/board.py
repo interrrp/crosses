@@ -8,11 +8,14 @@ class Mark(Enum):
     X = "X"
     O = "O"  # noqa: E741
 
+    def __str__(self) -> str:
+        return self.value
+
 
 class Outcome(Enum):
-    X_WON = "X won!"
-    O_WON = "O won!"
-    TIE = "Tie!"
+    X_WON = 0
+    O_WON = 1
+    TIE = 2
 
     @staticmethod
     def from_mark(mark: Mark) -> Outcome:
