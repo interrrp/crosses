@@ -4,8 +4,8 @@ from crosses.board import Board, InvalidMarkError, InvalidUnmarkError, Mark, Out
 
 
 def test_board_is_initialized_empty() -> None:
-    board = Board()
-    for index in range(9):
+    board = Board(width=5, height=5)
+    for index in range(25):
         assert board[index] == Mark.NONE
 
 
@@ -42,28 +42,30 @@ def test_board_determines_no_outcome() -> None:
 
 
 def test_board_determines_winner() -> None:
-    board = Board()
-
+    board = Board(width=5, height=5, cross_length=3)
     board.set_str(
-        "X . .",
-        ". X .",
-        ". . X",
+        "X . . . .",
+        ". X . . .",
+        ". . X . .",
+        ". . . . .",
     )
     assert board.outcome == Outcome.X_WON
 
+    board = Board(width=5, height=4, cross_length=4)
     board.set_str(
-        ". . O",
-        ". O .",
-        "O . .",
+        ". . . . .",
+        "X X X X .",
+        ". . . . .",
+        ". . . . .",
     )
-    assert board.outcome == Outcome.O_WON
+    assert board.outcome == Outcome.X_WON
 
 
 def test_board_determines_tie() -> None:
-    board = Board()
+    board = Board(width=3, height=3)
     board.set_str(
-        "X O X",
-        "O X O",
+        "X X O",
+        "O O X",
         "X O X",
     )
     assert board.outcome == Outcome.TIE

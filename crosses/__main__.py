@@ -1,7 +1,7 @@
-# ruff: noqa: T201 Allow prints
+# ruff: noqa: T201, PLR2004 Allow prints and constants
+
 
 from crosses.board import Board, InvalidMarkError, Mark, Outcome
-from crosses.engine import engine_mark
 
 RED = "\033[91m"
 BLUE = "\033[94m"
@@ -11,7 +11,7 @@ RESET = "\033[0m"
 
 
 def main() -> None:
-    board = Board()
+    board = Board(width=20, height=20)
     error = ""
 
     while True:
@@ -35,7 +35,6 @@ def main() -> None:
         index = int(input())
         try:
             board.mark(index - 1)
-            engine_mark(board)
             error = ""
         except InvalidMarkError:
             error = "Invalid mark!"
@@ -46,17 +45,17 @@ def clear_screen() -> None:
 
 
 def print_board(board: Board) -> None:
-    for index in range(9):
-        mark = board[index]
+    n_pad = len(str(board.width * board.height))
 
+    for index, mark in board:
         if mark == Mark.X:
-            print(f"{RED}{mark}{RESET} ", end="")
+            print(f"{RED}{'X':X>{n_pad}}{RESET} ", end="")
         elif mark == Mark.O:
-            print(f"{BLUE}{mark}{RESET} ", end="")
+            print(f"{BLUE}{'O':O>{n_pad}}{RESET} ", end="")
         else:
-            print(f"{GRAY}{index + 1}{RESET} ", end="")
+            print(f"{GRAY}{str(index + 1).zfill(n_pad)}{RESET} ", end="")
 
-        if (index + 1) % 3 == 0:
+        if (index + 1) % board.width == 0:
             print()
 
 

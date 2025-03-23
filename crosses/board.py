@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Generator
 from enum import Enum
 
 
@@ -9,6 +10,9 @@ class Mark(Enum):
     O = "O"  # noqa: E741
 
     def __str__(self) -> str:
+        return self.value
+
+    def __repr__(self) -> str:
         return self.value
 
 
@@ -31,8 +35,11 @@ class InvalidUnmarkError(Exception):
 
 
 class Board:
-    def __init__(self) -> None:
-        self._board = [Mark.NONE] * 9
+    def __init__(self, *, width: int = 3, height: int = 3, cross_length: int = 3) -> None:
+        self._width = width
+        self._height = height
+        self._cross_length = cross_length
+        self._board = [Mark.NONE] * (width * height)
         self._turn = Mark.X
 
     @property
@@ -40,30 +47,77 @@ class Board:
         return self._turn
 
     @property
-    def outcome(self) -> Outcome | None:
+    def width(self) -> int:
+        return self._width
+
+    @property
+    def height(self) -> int:
+        return self._height
+
+    def __iter__(self) -> Generator[tuple[int, Mark]]:
+        yield from enumerate(self._board)
+
+    @property
+    def outcome(self) -> Outcome | None:  # noqa: PLR0912, C901
+        # I'm sorry
+
+        for row in range(self._height):
+            for col in range(self._width - self._cross_length + 1):
+                first_mark = self[row, col]
+                if first_mark != Mark.NONE:
+                    winning = True
+                    for offset in range(1, self._cross_length):
+                        if self[row, col + offset] != first_mark:
+                            winning = False
+                            break
+                    if winning:
+                        return Outcome.from_mark(first_mark)
+
+        for col in range(self._width):
+            for row in range(self._height - self._cross_length + 1):
+                first_mark = self[row, col]
+                if first_mark != Mark.NONE:
+                    winning = True
+                    for offset in range(1, self._cross_length):
+                        if self[row + offset, col] != first_mark:
+                            winning = False
+                            break
+                    if winning:
+                        return Outcome.from_mark(first_mark)
+
+        for row in range(self._height - self._cross_length + 1):
+            for col in range(self._width - self._cross_length + 1):
+                first_mark = self[row, col]
+                if first_mark != Mark.NONE:
+                    winning = True
+                    for offset in range(1, self._cross_length):
+                        if self[row + offset, col + offset] != first_mark:
+                            winning = False
+                            break
+                    if winning:
+                        return Outcome.from_mark(first_mark)
+
+        for row in range(self._height - self._cross_length + 1):
+            for col in range(self._cross_length - 1, self._width):
+                first_mark = self[row, col]
+                if first_mark != Mark.NONE:
+                    winning = True
+                    for offset in range(1, self._cross_length):
+                        if self[row + offset, col - offset] != first_mark:
+                            winning = False
+                            break
+                    if winning:
+                        return Outcome.from_mark(first_mark)
+
         if not any(self.legal_indices):
             return Outcome.TIE
-
-        for row in range(3):
-            if self[row, 0] != Mark.NONE and self[row, 0] == self[row, 1] == self[row, 2]:
-                return Outcome.from_mark(self[row, 0])
-
-        for col in range(3):
-            if self[0, col] != Mark.NONE and self[0, col] == self[1, col] == self[2, col]:
-                return Outcome.from_mark(self[0, col])
-
-        if self[0, 0] != Mark.NONE and self[0, 0] == self[1, 1] == self[2, 2]:
-            return Outcome.from_mark(self[0, 0])
-
-        if self[0, 2] != Mark.NONE and self[0, 2] == self[1, 1] == self[2, 0]:
-            return Outcome.from_mark(self[0, 2])
 
         return None
 
     @property
     def legal_indices(self) -> list[int]:
         indices: list[int] = []
-        for index, mark in enumerate(self._board):
+        for index, mark in self:
             if mark == Mark.NONE:
                 indices.append(index)
         return indices
@@ -72,7 +126,7 @@ class Board:
         if isinstance(index, tuple):
             row = index[0]
             col = index[1]
-            return self._board[row * 3 + col]
+            return self._board[row * self._width + col]
         return self._board[index]
 
     def mark(self, index: int) -> None:
@@ -89,8 +143,8 @@ class Board:
         self._board[index] = Mark.NONE
         self._invert_turn()
 
-    def set_str(self, row_1: str, row_2: str, row_3: str) -> None:
-        all_rows = f"{row_1} {row_2} {row_3}".split()
+    def set_str(self, *rows: str) -> None:
+        all_rows = " ".join(rows).split()
         for index, row in enumerate(all_rows):
             self._board[index] = Mark(row)
 
