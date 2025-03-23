@@ -11,7 +11,7 @@ RESET = "\033[0m"
 
 
 def main() -> None:
-    board = Board(width=20, height=20)
+    board = Board()
     error = ""
 
     while True:
