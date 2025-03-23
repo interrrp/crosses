@@ -82,7 +82,7 @@ class Board:
         self._board[index] = Mark.NONE
         self._invert_turn()
 
-    def set_state(self, row_1: str, row_2: str, row_3: str) -> None:
+    def set_str(self, row_1: str, row_2: str, row_3: str) -> None:
         all_rows = f"{row_1} {row_2} {row_3}".split()
         for index, row in enumerate(all_rows):
             self._board[index] = Mark(row)

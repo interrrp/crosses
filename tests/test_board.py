@@ -37,14 +37,14 @@ def test_board_determines_no_outcome() -> None:
 def test_board_determines_winner() -> None:
     board = Board()
 
-    board.set_state(
+    board.set_str(
         "X . .",
         ". X .",
         ". . X",
     )
     assert board.outcome == Outcome.X_WON
 
-    board.set_state(
+    board.set_str(
         ". . O",
         ". O .",
         "O . .",
@@ -54,7 +54,7 @@ def test_board_determines_winner() -> None:
 
 def test_board_determines_tie() -> None:
     board = Board()
-    board.set_state(
+    board.set_str(
         "X O X",
         "O X O",
         "X O X",

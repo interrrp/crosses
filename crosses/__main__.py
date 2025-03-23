@@ -1,6 +1,7 @@
 # ruff: noqa: T201 Allow prints
 
 from crosses.board import Board, Mark, Outcome
+from crosses.engine import engine_mark
 
 RED = "\033[91m"
 BLUE = "\033[94m"
@@ -28,6 +29,7 @@ def main() -> None:
 
         index = int(input())
         board.mark(index - 1)
+        engine_mark(board)
 
 
 def clear_screen() -> None:
