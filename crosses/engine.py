@@ -28,7 +28,7 @@ def engine_mark(board: Board) -> None:
     board.mark(best_index)
 
 
-def _search(board: Board, depth: int = 3, alpha: float = -INF, beta: float = INF) -> float:
+def _search(board: Board, depth: int = 4, alpha: float = -INF, beta: float = INF) -> float:
     if board.outcome:
         if board.outcome == Outcome.TIE:
             return 0
