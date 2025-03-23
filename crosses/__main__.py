@@ -1,6 +1,6 @@
 # ruff: noqa: T201 Allow prints
 
-from crosses.board import Board, Mark, Outcome
+from crosses.board import Board, InvalidMarkError, Mark, Outcome
 from crosses.engine import engine_mark
 
 RED = "\033[91m"
@@ -12,6 +12,7 @@ RESET = "\033[0m"
 
 def main() -> None:
     board = Board()
+    error = ""
 
     while True:
         clear_screen()
@@ -27,9 +28,17 @@ def main() -> None:
             print(f"{YELLOW}Tie!{RESET}")
             break
 
+        print()
+        if error:
+            print(f"{RED}{error}{RESET}")
+
         index = int(input())
-        board.mark(index - 1)
-        engine_mark(board)
+        try:
+            board.mark(index - 1)
+            engine_mark(board)
+            error = ""
+        except InvalidMarkError:
+            error = "Invalid mark!"
 
 
 def clear_screen() -> None:

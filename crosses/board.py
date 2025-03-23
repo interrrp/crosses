@@ -22,6 +22,10 @@ class Outcome(Enum):
         return Outcome.X_WON if mark == Mark.X else Outcome.O_WON
 
 
+class InvalidMarkError(Exception):
+    pass
+
+
 class InvalidUnmarkError(Exception):
     pass
 
@@ -72,6 +76,9 @@ class Board:
         return self._board[index]
 
     def mark(self, index: int) -> None:
+        if self._board[index] != Mark.NONE:
+            raise InvalidMarkError
+
         self._board[index] = self._turn
         self._invert_turn()
 

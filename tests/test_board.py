@@ -1,6 +1,6 @@
 import pytest
 
-from crosses.board import Board, InvalidUnmarkError, Mark, Outcome
+from crosses.board import Board, InvalidMarkError, InvalidUnmarkError, Mark, Outcome
 
 
 def test_board_is_initialized_empty() -> None:
@@ -19,6 +19,13 @@ def test_board_marks_and_unmarks_squares() -> None:
     board.unmark(0)
     assert board[0] == Mark.NONE
     assert board.turn == Mark.X
+
+
+def test_board_invalid_mark() -> None:
+    board = Board()
+    board.mark(0)
+    with pytest.raises(InvalidMarkError):
+        board.mark(0)
 
 
 def test_board_invalid_unmark() -> None:
